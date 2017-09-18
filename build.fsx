@@ -115,7 +115,6 @@ let isVmStarted nameVm =
 let docker instruction =
     if not <| isVmStarted "default" then
         startVM "default"
-
     
     PowerShell.Create()
         .AddScript("$env:DOCKER_HOST=\"tcp://192.168.99.100:2376\"")
@@ -127,9 +126,10 @@ let docker instruction =
         
      
 let isSuccessOr message result =
-    printfn message
-    result |> Seq.iter (printfn "-> Powershell result  : %O")
-    
+    if not <| Seq.isEmpty result then  
+        printfn message
+        result |> Seq.iter (printfn "-> Powershell result  : %O")
+    ()
 
 // --------------------------------------------------------------------------------------
 // Clean build results
