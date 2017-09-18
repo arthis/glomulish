@@ -228,7 +228,7 @@ Target "All" DoNothing
     ==> "PrepareRelease"
     ==> "Publish"
     ==> "CreateDockerImage"
-    ==> "Deploy"
+    
 
 
 RunTargetOrDefault "All"
