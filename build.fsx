@@ -43,8 +43,11 @@ let deployDir = "./deploy"
 // Pattern specifying assemblies to be tested using expecto
 let clientTestExecutables = "test/UITests/**/bin/**/*Tests*.exe"
 
-let dockerUser = "artissae"
-let dockerImageName = "Cerf2017"
+let dockerUser = "arthis"
+let dockerImageName = "glomulish"
+
+//dockerUser shoudl be the same as dockerStoreUser
+let dockerStoreUser = "artissae"
 
 let run' timeout cmd args dir =
     if execProcess (fun info ->
@@ -202,7 +205,7 @@ Target "CreateDockerImage" (fun _ ->
 Target "Deploy" (fun _ ->
     // info.WorkingDirectory <- deployDir
     //artissae/Cerf2017
-    sprintf "login --username \"%s\" --password \"%s\"" dockerUser (getBuildParam "DockerPassword")
+    sprintf "login --username \"%s\" --password \"%s\"" dockerStoreUser (getBuildParam "DockerPassword")
     |> docker
     |> isSuccessOr "Docker login failed"
     
