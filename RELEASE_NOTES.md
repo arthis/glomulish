@@ -1,0 +1,1 @@
+* 1.1.10 - Support for heterogeneous XML attributes. Make CsvFile re-entrant.
