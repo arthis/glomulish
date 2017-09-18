@@ -43,8 +43,8 @@ let deployDir = "./deploy"
 // Pattern specifying assemblies to be tested using expecto
 let clientTestExecutables = "test/UITests/**/bin/**/*Tests*.exe"
 
-let dockerUser = "arthis"
-let dockerImageName = "glomulish"
+let dockerUser = "artissae"
+let dockerImageName = "Cerf2017"
 
 let run' timeout cmd args dir =
     if execProcess (fun info ->
@@ -191,19 +191,6 @@ Target "Publish" (fun _ ->
             info.WorkingDirectory <- glomulishPath
             info.Arguments <- "publish -c Release -o \"" + FullName deployDir + "\"") TimeSpan.MaxValue
     if result <> 0 then failwith "Publish failed"
-
-    let clientDir = deployDir </> "client"
-    let publicDir = clientDir </> "public"
-    let jsDir = clientDir </> "js"
-    let cssDir = clientDir </> "css"
-    let imageDir = clientDir </> "Images"
-
-    !! "src/Client/public/**/*.*" |> CopyFiles publicDir
-    !! "src/Client/js/**/*.*" |> CopyFiles jsDir
-    !! "src/Client/css/**/*.*" |> CopyFiles cssDir
-    !! "src/Images/**/*.*" |> CopyFiles imageDir
-
-    "src/Client/index.html" |> CopyFile clientDir
 )
 
 Target "CreateDockerImage" (fun _ ->
@@ -235,6 +222,7 @@ Target "All" DoNothing
     ==> "Buildglomulish"
     ==> "All"
     ==> "PrepareRelease"
+    ==> "Publish"
     ==> "CreateDockerImage"
 
 
