@@ -43,7 +43,7 @@ let deployDir = "./deploy"
 // Pattern specifying assemblies to be tested using expecto
 let clientTestExecutables = "test/UITests/**/bin/**/*Tests*.exe"
 
-let dockerUser = "yremy"
+let dockerUser = "arthis"
 let dockerImageName = "glomulish"
 
 let run' timeout cmd args dir =
