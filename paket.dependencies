@@ -1,0 +1,8 @@
+source https://www.nuget.org/api/v2
+
+nuget log4net
+
+group Build
+  source https://nuget.org/api/v2
+
+  
