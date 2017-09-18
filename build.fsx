@@ -48,6 +48,7 @@ let dockerImageName = "glomulish"
 
 //dockerUser shoudl be the same as dockerStoreUser
 let dockerStoreUser = "artissae"
+let dockerStoreOrganisation = "papeeteconsulting"
 
 let run' timeout cmd args dir =
     if execProcess (fun info ->
@@ -181,7 +182,7 @@ Target "PrepareRelease" (fun _ ->
     Git.Branches.tag "" tagName
     Git.Branches.pushTag "" "origin" tagName
 
-    sprintf "tag %s/%s %s/%s:%s" dockerUser dockerImageName dockerUser dockerImageName release.NugetVersion
+    sprintf "tag %s/%s %s/%s:%s" dockerStoreOrganisation dockerImageName dockerStoreOrganisation dockerImageName release.NugetVersion
     |> docker 
     |> isSuccessOr "Docker tag failed"
     
@@ -197,7 +198,7 @@ Target "Publish" (fun _ ->
 )
 
 Target "CreateDockerImage" (fun _ ->
-    sprintf "build -t %s/%s ." dockerUser dockerImageName
+    sprintf "build -t %s/%s ." dockerStoreOrganisation dockerImageName
     |> docker
     |> isSuccessOr "Docker build failed"
 )
@@ -211,7 +212,7 @@ Target "Deploy" (fun _ ->
     
 
     // info.WorkingDirectory <- deployDir
-    sprintf "push %s/%s:%s" dockerUser dockerImageName release.NugetVersion
+    sprintf "push %s/%s:%s" dockerStoreOrganisation dockerImageName release.NugetVersion
     |> docker 
     |> isSuccessOr "Docker push failed"
 )
@@ -227,6 +228,7 @@ Target "All" DoNothing
     ==> "PrepareRelease"
     ==> "Publish"
     ==> "CreateDockerImage"
+    ==> "Deploy"
 
 
 RunTargetOrDefault "All"
