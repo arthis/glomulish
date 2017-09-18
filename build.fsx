@@ -3,14 +3,24 @@
 // --------------------------------------------------------------------------------------
 
 #r @"packages/build/FAKE/tools/FakeLib.dll"
+#r @"packages/build/FSharp.Data/lib/net40/FSharp.Data.dll"
+
+#r "System.Management.Automation"
+#r "System.Core.dll"
+#r "System.Xml.Linq.dll"
+
+open System
+open System.IO
+open System.Xml.Linq
 
 open Fake
 open Fake.Git
 open Fake.AssemblyInfoFile
 open Fake.ReleaseNotesHelper
-open System
-open System.IO
+open Fake.UserInputHelper
 open Fake.Testing.Expecto
+open Fake.Testing.NUnit3
+open System.Management.Automation
 
 let project = "Glomulish"
 
@@ -19,7 +29,7 @@ let summary = "Glomulishing is the key!"
 let description = summary
 
 let configuration = "Release"
-let glomulishPath = "./src/Hosts.Batch" |> FullName
+let glomulishPath = "./src/Glomulish.Host.Batch" |> FullName
 
 let serverTestsPath = "./test/ServerTests" |> FullName
 let clientTestsPath = "./test/UITests" |> FullName
@@ -104,7 +114,7 @@ let isVmStarted nameVm =
     
 let docker instruction =
     if not <| isVmStarted "default" then
-		startVM "default"
+        startVM "default"
 
     
     PowerShell.Create()
@@ -116,8 +126,9 @@ let docker instruction =
         .Invoke()
         
      
-let isSuccessOr result=
-    result |> Seq.iter (printfn "Powershell result  : %O")
+let isSuccessOr message result =
+    printfn message
+    result |> Seq.iter (printfn "-> Powershell result  : %O")
     
 
 // --------------------------------------------------------------------------------------
@@ -177,7 +188,7 @@ Target "Publish" (fun _ ->
     let result =
         ExecProcess (fun info ->
             info.FileName <- dotnetExePath
-            info.WorkingDirectory <- serverPath
+            info.WorkingDirectory <- glomulishPath
             info.Arguments <- "publish -c Release -o \"" + FullName deployDir + "\"") TimeSpan.MaxValue
     if result <> 0 then failwith "Publish failed"
 
