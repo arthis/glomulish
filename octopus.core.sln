@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{B9A07348-04B9-43FB-B39A-E522E9CEED51}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "domain", "src\Domain\domain.fsproj", "{5D2DAF25-A7AF-4218-8BFC-A60DC75092E4}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Globulish.Domain", "src\Globulish.Domain\Globulish.Domain.fsproj", "{5D2DAF25-A7AF-4218-8BFC-A60DC75092E4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

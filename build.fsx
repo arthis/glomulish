@@ -166,8 +166,33 @@ Target "Buildglomulish" (fun _ ->
     runDotnet glomulishPath "build"
 )
 
+Target "RunBatch" (fun _ ->
+    runDotnet glomulishPath "run"
+)
+
+
 // --------------------------------------------------------------------------------------
 // Release Scripts
+Target "StartDocker" (fun _->
+    if not <| isVmStarted "default" then
+        startVM "default"
+)
+
+Target "Publish" (fun _ ->
+    let result =
+        ExecProcess (fun info ->
+            info.FileName <- dotnetExePath
+            info.WorkingDirectory <- glomulishPath
+            info.Arguments <- "publish -c Release -o \"" + FullName deployDir + "/windows\"") TimeSpan.MaxValue
+    if result <> 0 then failwith "Publish failed"
+
+    let result =
+        ExecProcess (fun info ->
+            info.FileName <- dotnetExePath
+            info.WorkingDirectory <- glomulishPath
+            info.Arguments <- "publish -c Release -r debian-x64 -o \"" + FullName deployDir + "/xdebian-64\"") TimeSpan.MaxValue
+    if result <> 0 then failwith "Publish failed"
+)
 
 Target "PrepareRelease" (fun _ ->
     Git.Branches.checkout "" false "master"
@@ -188,14 +213,6 @@ Target "PrepareRelease" (fun _ ->
     
 )
 
-Target "Publish" (fun _ ->
-    let result =
-        ExecProcess (fun info ->
-            info.FileName <- dotnetExePath
-            info.WorkingDirectory <- glomulishPath
-            info.Arguments <- "publish -c Release -o \"" + FullName deployDir + "\"") TimeSpan.MaxValue
-    if result <> 0 then failwith "Publish failed"
-)
 
 Target "CreateDockerImage" (fun _ ->
     sprintf "build -t %s/%s ." dockerStoreOrganisation dockerImageName
@@ -225,8 +242,13 @@ Target "All" DoNothing
     ==> "Installglomulish"
     ==> "Buildglomulish"
     ==> "All"
-    ==> "PrepareRelease"
+
+"ALL"    
+    ==> "RunBatch"
+
+"ALL"
     ==> "Publish"
+    ==> "PrepareRelease"
     ==> "CreateDockerImage"
     
 
