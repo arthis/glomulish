@@ -168,7 +168,7 @@ Target "Buildglomulish" (fun _ ->
     runDotnet glomulishPath "build"
 )
 
-Target "RunBatch" (fun _ ->
+Target "Run" (fun _ ->
     runDotnet glomulishPath "run"
 )
 
@@ -196,10 +196,14 @@ Target "Publish" (fun _ ->
     if result <> 0 then failwith "Publish failed"
 )
 
-Target "Run" (fun _ ->
+Target "RunDocker" (fun _ ->
     sprintf "build -t %s/%s ." dockerStoreOrganisation dockerImageName
     |> docker
     |> isSuccessOr "Docker build failed"
+   
+    sprintf "rm $(docker stop $(docker ps -a -q --filter ancestor=%s/%s --format=\"{{.ID}}\"))" dockerStoreOrganisation dockerImageName
+    |> docker
+    |> isSuccessOr "Docker stop and remove previous container from image failed"
 
     sprintf "run -it -d --volumes-from %s -p %i:%i %s/%s" dockerVolume dockerPort dockerPort dockerStoreOrganisation dockerImageName
     |> docker
@@ -256,7 +260,9 @@ Target "All" DoNothing
     ==> "All"
 
 "ALL"    
-    ==> "RunBatch"
+    ==> "Run"
+"ALL"    
+    ==> "RunDocker"    
 
 "ALL"
     ==> "Publish"
