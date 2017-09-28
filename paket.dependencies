@@ -2,6 +2,7 @@ source https://www.nuget.org/api/v2
 
 nuget log4net
 nuget FSharp.Core
+nuget Microsoft.Extensions.Configuration.Json
 nuget Suave
 
 

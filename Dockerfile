@@ -9,4 +9,4 @@ WORKDIR app
 
 EXPOSE 8080
 EXPOSE 8085
-ENTRYPOINT ["dotnet", "hestBatch.dll"]
+ENTRYPOINT ["dotnet", "hostBatch.dll"]

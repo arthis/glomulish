@@ -49,6 +49,8 @@ let dockerImageName = "glomulish"
 //dockerUser shoudl be the same as dockerStoreUser
 let dockerStoreUser = "artissae"
 let dockerStoreOrganisation = "papeeteconsulting"
+let dockerVolume = "configGlomulishAlpha"
+let dockerPort = 8080
 
 let run' timeout cmd args dir =
     if execProcess (fun info ->
@@ -183,7 +185,7 @@ Target "Publish" (fun _ ->
         ExecProcess (fun info ->
             info.FileName <- dotnetExePath
             info.WorkingDirectory <- glomulishPath
-            info.Arguments <- "publish -c Release -o \"" + FullName deployDir + "/windows\"") TimeSpan.MaxValue
+            info.Arguments <- "publish -c Release -r win10-x64 -o \"" + FullName deployDir + "/win10-x64\"") TimeSpan.MaxValue
     if result <> 0 then failwith "Publish failed"
 
     let result =
@@ -192,6 +194,16 @@ Target "Publish" (fun _ ->
             info.WorkingDirectory <- glomulishPath
             info.Arguments <- "publish -c Release -r debian-x64 -o \"" + FullName deployDir + "/xdebian-64\"") TimeSpan.MaxValue
     if result <> 0 then failwith "Publish failed"
+)
+
+Target "Run" (fun _ ->
+    sprintf "build -t %s/%s ." dockerStoreOrganisation dockerImageName
+    |> docker
+    |> isSuccessOr "Docker build failed"
+
+    sprintf "run -it -d --volumes-from %s -p %i:%i %s/%s" dockerVolume dockerPort dockerPort dockerStoreOrganisation dockerImageName
+    |> docker
+    |> isSuccessOr "Docker run failed"
 )
 
 Target "PrepareRelease" (fun _ ->

@@ -1,4 +1,4 @@
-namespace Octopus.Domain
+namespace Glomulish.Domain
 
 /// Documentation for my library
 ///

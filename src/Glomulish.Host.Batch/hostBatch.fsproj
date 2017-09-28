@@ -6,8 +6,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="config/suave.json" CopyToOutputDirectory="Always" CopyToPublishDirectory="Never"  />
     <Compile Include="Program.fs" />
-    <Content Include="log4net.config" />
+    <Content Include="log4net.config" CopyToOutputDirectory="Always" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Globulish.Domain\Globulish.Domain.fsproj" />
   </ItemGroup>
 
   <Import Project="..\..\.paket\Paket.Restore.targets" />
