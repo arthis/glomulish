@@ -62,7 +62,7 @@ let main argv =
     let binding = HttpBinding.createSimple  HTTP iPAddress port
     let conf = { defaultConfig with bindings=[binding ]; cancellationToken = cts.Token  }
 
-    let helloText = sprintf "Hello GET !!! " 
+    let helloText = sprintf "Hello GET !!! Babar" 
 
     let app =
       choose

@@ -137,6 +137,11 @@ let isSuccessOr message result =
         result |> Seq.iter (printfn "-> Powershell result  : %O")
     ()
 
+let isSuccess result =
+    if not <| Seq.isEmpty result then  
+        result |> Seq.iter (printfn "-> Powershell result  : %O")
+    ()    
+
 // --------------------------------------------------------------------------------------
 // Clean build results
 
@@ -174,7 +179,7 @@ Target "Run" (fun _ ->
 
 
 // --------------------------------------------------------------------------------------
-// Release Scripts
+// Running and reparing docker containers
 Target "StartDocker" (fun _->
     if not <| isVmStarted "default" then
         startVM "default"
@@ -196,20 +201,42 @@ Target "Publish" (fun _ ->
     if result <> 0 then failwith "Publish failed"
 )
 
-Target "RunDocker" (fun _ ->
-    sprintf "build -t %s/%s ." dockerStoreOrganisation dockerImageName
+Target "CreateDockerImage" (fun _ ->
+    let cmdBuild = sprintf "build -t %s/%s ." dockerStoreOrganisation dockerImageName
+    Console.WriteLine cmdBuild
+
+    cmdBuild
     |> docker
     |> isSuccessOr "Docker build failed"
-   
-    sprintf "rm $(docker stop $(docker ps -a -q --filter ancestor=%s/%s --format=\"{{.ID}}\"))" dockerStoreOrganisation dockerImageName
+
+    let cmdClean = sprintf "rmi $(docker images -f \"dangling=true\" -q)" 
+    Console.WriteLine  cmdClean
+
+    cmdClean
+    |> docker
+    |> isSuccess
+)
+
+Target "RunDocker" (fun _ ->
+    let cmdStopRemove = sprintf "rm $(docker stop $(docker ps -a -q --filter ancestor=%s/%s --format=\"{{.ID}}\"))" dockerStoreOrganisation dockerImageName
+    Console.WriteLine  cmdStopRemove
+    
+    cmdStopRemove
     |> docker
     |> isSuccessOr "Docker stop and remove previous container from image failed"
 
-    sprintf "run -it -d --volumes-from %s -p %i:%i %s/%s" dockerVolume dockerPort dockerPort dockerStoreOrganisation dockerImageName
+    let cmdRun = sprintf "run -it -d --volumes-from %s -p %i:%i %s/%s" dockerVolume dockerPort dockerPort dockerStoreOrganisation dockerImageName
+    Console.WriteLine  cmdRun
+
+    cmdRun
     |> docker
-    |> isSuccessOr "Docker run failed"
+    |> isSuccess
+
 )
 
+
+// --------------------------------------------------------------------------------------
+// Release Scripts
 Target "PrepareRelease" (fun _ ->
     Git.Branches.checkout "" false "master"
     Git.CommandHelper.directRunGitCommand "" "fetch origin" |> ignore
@@ -230,11 +257,7 @@ Target "PrepareRelease" (fun _ ->
 )
 
 
-Target "CreateDockerImage" (fun _ ->
-    sprintf "build -t %s/%s ." dockerStoreOrganisation dockerImageName
-    |> docker
-    |> isSuccessOr "Docker build failed"
-)
+
 
 Target "Deploy" (fun _ ->
     // info.WorkingDirectory <- deployDir
@@ -261,13 +284,15 @@ Target "All" DoNothing
 
 "ALL"    
     ==> "Run"
-"ALL"    
-    ==> "RunDocker"    
 
 "ALL"
     ==> "Publish"
-    ==> "PrepareRelease"
     ==> "CreateDockerImage"
+    //==> "RunDocker"    
+
+"CreateDockerImage"
+    ==> "PrepareRelease"
+    ==> "Deploy"    
     
 
 
