@@ -264,7 +264,7 @@ Target "Deploy" (fun _ ->
     //artissae/Cerf2017
     sprintf "login --username \"%s\" --password \"%s\"" dockerStoreUser (getBuildParam "DockerPassword")
     |> docker
-    |> isSuccessOr "Docker login failed"
+    |> isSuccess
     
 
     // info.WorkingDirectory <- deployDir
@@ -292,7 +292,7 @@ Target "All" DoNothing
 
 "CreateDockerImage"
     ==> "PrepareRelease"
-    ==> "Deploy"    
+    // ==> "Deploy"    
     
 
 
